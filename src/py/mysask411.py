@@ -152,6 +152,12 @@ class TestBusinessNamesHyphenated(unittest.TestCase):
                                  "Unexpected top result {0}".format(business_listing_id))
                 self.success_count += 1
 
+                # TODO: Re-run the test on PROD and compare the results!
+
+    # TODO: Function to test the ampersand in business names
+
+    # TODO: Function to test the apostrophe (possessive form) in business names
+
     def tearDown(self):
         # Pause to view the web site
         print(
