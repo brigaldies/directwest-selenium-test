@@ -7,16 +7,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-import win32com.client
+# import win32com.client
+import argparse
 import time
 
 import unittest
 
 import pandas as pd
 
-
-# def usage():
-#     print('Usage {0} {1}'.format(sys.argv[0], '<MySask411 site URL>'))
+# Global parameters
+g_mysask411_url_under_test = None
+g_test_data_file_path = None
 
 
 class TestBusinessNamesHyphenated(unittest.TestCase):
@@ -27,47 +28,51 @@ class TestBusinessNamesHyphenated(unittest.TestCase):
         self.driver = webdriver.Chrome()
 
         # Connecting to the MySask411 site under test
-        # TODO: Specify the environment on the command line.
+
         # DEV
-        url = 'https://osc.mysask411.net'
+        # url = 'https://osc.mysask411.net'
         # PROD
         # url = 'https://mysask411.com'
+
+        url = g_mysask411_url_under_test
 
         print('Connecting to {0}'.format(url))
         self.driver.get(url)
 
-        if url == 'https://osc.mysask411.net':
-            # MySask411 authentication on DEV
-            print('Authenticating...')
-            time.sleep(1)
-            shell = win32com.client.Dispatch("WScript.Shell")
-            shell.Sendkeys("mysask411")
-            time.sleep(1)
-            shell.Sendkeys("{TAB}")
-            time.sleep(1)
-            shell.Sendkeys("nj8yH4")
-            time.sleep(1)
-            shell.Sendkeys("{ENTER}")
-            time.sleep(1)
-
-            try:
-                print('Waiting for the site...')
-                searchbox_what = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.NAME, "what"))
-                )
-                self.assertIsNotNone(searchbox_what, "Can't find the 'what' input field!")
-
-            except TimeoutException:
-                print("TimeoutException: Waiting for site")
-                self.assertTrue(False, "Timed out waiting for the site!")
+        # TODO: Use the Robo framework to type the user id and password in the browser login window.
+        # if url == 'https://osc.mysask411.net':
+        #     # MySask411 authentication on DEV
+        #     print('Authenticating...')
+        #     time.sleep(1)
+        #     shell = win32com.client.Dispatch("WScript.Shell")
+        #     shell.Sendkeys("mysask411")
+        #     time.sleep(1)
+        #     shell.Sendkeys("{TAB}")
+        #     time.sleep(1)
+        #     shell.Sendkeys("nj8yH4")
+        #     time.sleep(1)
+        #     shell.Sendkeys("{ENTER}")
+        #     time.sleep(1)
+        #
+        #     try:
+        #         print('Waiting for the site...')
+        #         searchbox_what = WebDriverWait(self.driver, 10).until(
+        #             EC.presence_of_element_located((By.NAME, "what"))
+        #         )
+        #         self.assertIsNotNone(searchbox_what, "Can't find the 'what' input field!")
+        #
+        #     except TimeoutException:
+        #         print("TimeoutException: Waiting for site")
+        #         self.assertTrue(False, "Timed out waiting for the site!")
 
         # Verify we're on the proper site
         self.assertTrue("Find Local Businesses" in self.driver.title)
         self.assertTrue("mysask411" in self.driver.page_source)
 
-        testplan_file = 'C:\\Users\\oscadmin\\Downloads\\DirectWest QA Template.xlsx'
-        print("Reading test data from {0}...".format(testplan_file))
-        self.xl = pd.ExcelFile(testplan_file)
+        # TODO: Specfy the QA test plan on the command line.
+        # testplan_file = 'C:\\Users\\oscadmin\\Downloads\\DirectWest QA Template.xlsx'
+        print("Reading test data from {0}...".format(g_test_data_file_path))
+        self.xl = pd.ExcelFile(g_test_data_file_path)
         self.assertIsNotNone(self.xl)
         print(self.xl.sheet_names)
         self.df = self.xl.parse('Bus Name Hyphens')
@@ -171,8 +176,27 @@ class TestBusinessNamesHyphenated(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # if len(sys.argv) != 2:
-    #     usage()
-    #     exit(1)
 
+    parser = argparse.ArgumentParser(description='Automated Selenium-based MySask411 searches tests.')
+    parser.add_argument('-u', '--url', help='MySask4121 web site URL', required=True)
+    parser.add_argument('-d', '--data', help='MySask4121 test data file', required=True)
+    parser.add_argument('unittest_args', nargs='*')
+    args = parser.parse_args()
+
+    print("argv[0]={0}".format(sys.argv[0]))
+    print("url={0}".format(args.url))
+    print("test data={0}".format(args.data))
+    print("unit test args={0}".format(args.unittest_args))
+
+    g_mysask411_url_under_test = args.url
+    g_test_data_file_path = args.data
+
+    print("g_mysask411_url_under_test={0}".format(g_mysask411_url_under_test))
+    print("g_test_data_file_path={0}".format(g_test_data_file_path))
+
+    # Next line does not work
+    # unittest.main([sys.argv[0]] + args.unittest_args)
+
+    # Now set the sys.argv to the unittest_args (leaving sys.argv[0] alone)
+    sys.argv[1:] = args.unittest_args
     unittest.main()
