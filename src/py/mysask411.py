@@ -20,7 +20,7 @@ g_mysask411_url_under_test = None
 g_test_data_file_path = None
 
 
-class TestBusinessNamesHyphenated(unittest.TestCase):
+class TestBusinessNames(unittest.TestCase):
     def setUp(self):
         print('Tests setup')
 
@@ -56,7 +56,7 @@ class TestBusinessNamesHyphenated(unittest.TestCase):
 
             try:
                 print('Waiting for the site...')
-                searchbox_what = WebDriverWait(self.driver, 10).until(
+                searchbox_what = WebDriverWait(self.driver, 30).until(
                     EC.presence_of_element_located((By.NAME, "what"))
                 )
                 self.assertIsNotNone(searchbox_what, "Can't find the 'what' input field!")
@@ -164,13 +164,14 @@ class TestBusinessNamesHyphenated(unittest.TestCase):
     def tearDown(self):
         # Pause to view the web site
         print(
-            "Tests count = {0}, successes count = {1}, percent success={2}%".format(self.tests_count, self.success_count,
-                                                                                   round((
-                                                                                         self.success_count / self.tests_count) * 100)))
-        input("Press Enter to continue...")
+            "Tests count = {0}, successes count = {1}, percent success={2}%".format(self.tests_count,
+                                                                                    self.success_count,
+                                                                                    round((
+                                                                                              self.success_count / self.tests_count) * 100)))
+        # input("Press Enter to continue...")
         print('Closing Selenium WebDriver...')
         self.driver.close()
-        print('End of tests.')
+        print('tearDown done.')
 
 
 if __name__ == "__main__":
@@ -198,4 +199,13 @@ if __name__ == "__main__":
 
     # Now set the sys.argv to the unittest_args (leaving sys.argv[0] alone)
     sys.argv[1:] = args.unittest_args
-    unittest.main()
+    try:
+        # exit=False: Do not exit after running the tests.
+        unittest.main(verbosity=2, exit=False)
+    except Exception as e:
+        print("An exception occurred in unittest.main():\n{}".format(e))
+    finally:
+        print("Main: End of tests.")
+
+    # Always return success so that tests can be run in batch mode.
+    sys.exit(0)
