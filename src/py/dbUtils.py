@@ -77,6 +77,23 @@ def dwDbGetCategories(cnx, city):
     return rows
 
 
+def dwDbGetAllCategoriesCount(cnx):
+    rows = None
+    sqlStatement = """
+            select count(*) as BUS_ALL_HEADINGS_COUNT from (    
+            select distinct BUS_HEADING from SolrDWBusiness) t             
+        """
+    try:
+        cursor = cnx.cursor()
+        rows = cursor.execute(sqlStatement).fetchall()
+        # print("'rows' data type: {}".format(type(rows)))
+        assert len(rows) == 1
+    except Exception as e:
+        printRed('ERROR: An exception occurred when executing "{}":\n{}'.format(
+            sqlStatement, e))
+    return rows[0].BUS_ALL_HEADINGS_COUNT
+
+
 def dwDbGetAllCategories(cnx):
     rows = None
     sqlStatement = """
@@ -113,6 +130,9 @@ def dwDbGetBusinessesCountByCategory(cnx, city, heading):
 
 def dwDbGetTopRankedBusinessInCategoryAndCity(cnx, city, heading):
     rows = None
+
+    # Solr sort: $LocalSearchCitySort desc, BUS_IS_TOLL_FREE asc, $dwScore desc, BUS_PRIORITY_RANK desc, BUS_CITY asc, BUS_BUSINESS_NAME_SORT asc, BUS_NAME_EL_SORT asc, BUS_LISTING_ID asc, id asc
+    # SQL sort: BUS_IS_TOLL_FREE asc, BUS_PRIORITY_RANK desc, BUS_CITY asc, BUS_BUSINESS_NAME_SORT asc, BUS_NAME_EL_SORT asc, BUS_LISTING_ID asc, id asc
     sqlStatement = """
     select * from (
         select 

@@ -10,7 +10,13 @@ from solr import *
 
 
 def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
-    """Test exact-category searches
+    """
+    Test searches of categories in a given location.
+    :param args: Python script's command-line arguments.
+    :param db_cnx: Source SQL database connection.
+    :param solr_cnx: Solr connection.
+    :param tests_count: Maximum number of randomly (Seeded)-selected categories to test.
+    :return: Number of successful tests.
     """
     test_name = "testExactCategoryMatches"
     start_time = time.monotonic()
@@ -19,8 +25,9 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
     search_times = []
     recalls = []
     category_tokens_stats = {}
+    tested_categories = {}
     try:
-        print("{}: Executing {} tests.".format(test_name, tests_count))
+        print("{}: Executing {} tests...".format(test_name, tests_count))
 
         # Retrieve categories
         rows = dwDbGetCategories(db_cnx, args.loc)
@@ -61,8 +68,10 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
             print("\tAsserting business' source database records...")
             assert len(business_rows) == 1
             category_business_count = business_rows[0].BUS_CAT_COUNT
-            print('\tSource database: {} businesses in category "{}" in "{}"'.format(category_business_count, category,
-                                                                                     args.loc))
+            print('\tSource database: {} businesses in category "{}" in "{}"'.format(
+                category_business_count,
+                category,
+                args.loc))
             assert category_business_count > 0
 
             # Search!
@@ -85,24 +94,31 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
                 # Each Solr document should be of the expected category
                 print("\tAsserting the docs' category...")
                 for doc in docs:
-                    print('\tDoc id="{}"\tname="{}"\tcategory="{}"'.format(doc['id'], doc['BUS_BUSINESS_NAME'],
-                                                                           doc['BUS_HEADING']))
+                    print('\tDoc DW id="{}"\tname="{}"\tcategory="{}", $isExactCategoryMatch={}'.format(
+                        doc['id'],
+                        doc['BUS_BUSINESS_NAME'],
+                        doc['BUS_HEADING'],
+                        doc['$isExactCategoryMatch']))
                     assert doc['BUS_HEADING'] == category
+                    assert doc['$isExactCategoryMatch']
 
                 # TODO: Check the top document.
-                # Solr sort: $LocalSearchCitySort desc, BUS_IS_TOLL_FREE asc, $dwScore desc, BUS_PRIORITY_RANK desc, BUS_CITY asc, BUS_BUSINESS_NAME_SORT asc, BUS_NAME_EL_SORT asc, BUS_LISTING_ID asc, id asc
-                # SQL sort: BUS_IS_TOLL_FREE asc, BUS_PRIORITY_RANK desc, BUS_CITY asc, BUS_BUSINESS_NAME_SORT asc, BUS_NAME_EL_SORT asc, BUS_LISTING_ID asc, id asc
-                print("\tAsserting the SQL-ranked busineses query...")
+                print("\tAsserting the SQL-ranked businesses query...")
                 sql_ranked_businesses = dwDbGetTopRankedBusinessInCategoryAndCity(db_cnx, args.loc, category)
                 assert len(sql_ranked_businesses) > 0
-                print("\tAsserting the top doc...")
-                assert sql_ranked_businesses[0].ID_STR == docs[0]['id']
+                print("\tAsserting the SQL-ranked businesses count...")
+                assert len(sql_ranked_businesses) == len(docs)
+                print("\tAsserting the docs' ranking...")
+                for idx, sql_ranked_business in enumerate(sql_ranked_businesses):
+                    assert sql_ranked_business.ID_STR == docs[idx]['id']
 
                 printGreen("\tAll asserts PASSED.")
                 count_success += 1
+                tested_categories[category] = 'PASSED'
             except Exception as e:
                 print(e)
-                printRed("Assert FAILED.")
+                printRed("\tAssert FAILED.")
+                tested_categories[category] = 'FAILED'
 
             # Stop after max count tests
             if count == tests_count:
@@ -112,7 +128,17 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
         printRed(e)
     finally:
         print("\n")
-        print("{} tests executed.".format(count))
+        total_categories_count = dwDbGetAllCategoriesCount(db_cnx)
+        print("{} tests executed: {}% of all categories ({})".format(count,
+                                                                     round((count / total_categories_count) * 100, 2),
+                                                                     total_categories_count))
+        print("Tested categories:")
+        for key in sorted(tested_categories.keys()):
+            result = tested_categories[key]
+            if result == 'PASSED':
+                printGreen('"{}" - {}'.format(key, result))
+            else:
+                printRed('"{}" - {}'.format(key, result))
         if count_success == tests_count:
             printSuccess("All tests PASSED!")
         else:
@@ -123,19 +149,22 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
         # Display some stats
         print("\n")
         print("QTime: median={} ms, average={} ms, min={} ms, max={} ms".format(
-            np.median(search_times),
-            np.average(search_times),
-            np.min(search_times),
-            np.max(search_times)))
-        print("Recall: median={} ms, average={} ms, min={} ms, max={} ms".format(
-            np.median(recalls),
-            np.average(recalls),
-            np.min(recalls),
-            np.max(recalls)))
+            np.round(np.median(search_times)),
+            np.round(np.average(search_times)),
+            np.round(np.min(search_times)),
+            np.round(np.max(search_times))))
+        print("Recall: median={} ms, average={}, min={}, max={}".format(
+            np.round(np.median(recalls)),
+            np.round(np.average(recalls)),
+            np.round(np.min(recalls)),
+            np.round(np.max(recalls))))
 
+        print("Categories' tokens distribution:")
         sorted_keys = sorted(category_tokens_stats.keys())
         for key in sorted_keys:
             print("{}: {}".format(key, category_tokens_stats[key]))
 
         end_time = time.monotonic()
         print("Execution time: {}".format(timedelta(seconds=end_time - start_time)))
+
+    return count_success
