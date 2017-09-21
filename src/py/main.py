@@ -3,9 +3,20 @@ import argparse
 from analyzeCategories import *
 from testExactCategoryMatches import *
 from testHighPrecisionBusinessNameMatches import *
+from testJudgementList import *
 
 if __name__ == "__main__":
-    """Usage example: --server apiosc.411.directwest.com --database API --user apiuser --password api12! --solr "http://localhost:8983/solr/DWBusiness" --handler DWOmniSearch --test name --count 10 --loc Regina
+    """Usage example: 
+    --server apiosc.411.directwest.com 
+    --database API 
+    --user apiuser 
+    --password api12!
+    --solr "http://localhost:8983/solr/DWBusiness" 
+    --handler DWOmniSearch 
+    --test name 
+    --count 10 
+    --loc Regina
+    --filter "%-%"
     """
     start_time = time.monotonic()
     tests_count = 10  # Default
@@ -21,6 +32,7 @@ if __name__ == "__main__":
         parser.add_argument('-t', '--test', help='Test type', required=True)
         parser.add_argument('-c', '--count', help='Tests count', required=False)
         parser.add_argument('-l', '--loc', help='Location', required=False)
+        parser.add_argument('-f', '--filter', help='Filter', required=False)
 
         args = parser.parse_args()
         if args.count:
@@ -45,6 +57,8 @@ if __name__ == "__main__":
                 testHighPrecisionBusinessNameMatches(args, cnx, solr_cnx, tests_count)
             elif args.test == "cat":
                 testExactCategoryMatches(args, cnx, solr_cnx, tests_count)
+            elif args.test == "judgement":
+                testJudgementList(args, cnx, solr_cnx, )
             elif args.test == "analyzecat":
                 analyzeCategories(args, cnx)
             else:

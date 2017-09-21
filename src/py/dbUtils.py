@@ -43,16 +43,26 @@ def dwDbVersion(cnx):
 
 def dwDbGetBusinesses(cnx, city, filter):
     rows = None
+    sql_where = 'lower(BUS_CITY)=lower(?)'
+    if not filter is None:
+        sql_where += ' and BUS_BUSINESS_NAME like ?'
     sqlStatement = """
         select * from (
-        select distinct LTRIM(STR(id, 10)) as ID_STR, LTRIM(STR(BUS_LISTING_ID, 10)) as BUS_LISTING_ID_STR, BUS_BUSINESS_NAME, BUS_CITY, BUS_PRIORITY_RANK
-        from SolrDWBusiness 
-        where lower(BUS_CITY)=lower(?) and BUS_BUSINESS_NAME like ?) t
-        order by BUS_BUSINESS_NAME asc, BUS_CITY asc, BUS_PRIORITY_RANK desc, BUS_LISTING_ID_STR asc, ID_STR asc
-    """
+            select distinct LTRIM(STR(id, 10)) as ID_STR, LTRIM(STR(BUS_LISTING_ID, 10)) as BUS_LISTING_ID_STR, BUS_BUSINESS_NAME, BUS_EL_TEXT, BUS_CITY, BUS_PRIORITY_RANK, BUS_IS_TOLL_FREE
+            from SolrDWBusiness 
+            where {}) t
+        order by BUS_IS_TOLL_FREE asc, BUS_PRIORITY_RANK desc, BUS_CITY asc, BUS_BUSINESS_NAME asc, BUS_EL_TEXT asc, BUS_LISTING_ID_STR asc, ID_STR asc
+    """.format(sql_where)
     try:
         cursor = cnx.cursor()
-        rows = cursor.execute(sqlStatement, (city, filter)).fetchall()
+        print('Executing SQL statement: {} for city "{}"{}'.format(
+            sqlStatement,
+            city,
+            ' and business name filter "{}"'.format(filter) if not filter is None else ''))
+        if not filter is None:
+            rows = cursor.execute(sqlStatement, (city, filter)).fetchall()
+        else:
+            rows = cursor.execute(sqlStatement, (city)).fetchall()
         # print("'rows' data type: {}".format(type(rows)))
     except Exception as e:
         printRed('ERROR: An exception occurred when executing "{}":\n{}'.format(

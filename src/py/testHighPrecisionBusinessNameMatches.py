@@ -25,8 +25,11 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
     try:
         print("{}: Executing {} tests.".format(test_name, tests_count))
 
-        # Retrieve hyphenated business names
-        rows = dwDbGetBusinesses(db_cnx, args.loc, '%-%')
+        # Retrieve business names
+        rows = dwDbGetBusinesses(db_cnx, args.loc, args.filter)
+
+        if rows is None or len(rows) == 0:
+            raise Exception("No businesses returned from the source database!")
 
         # Seed the random number generator for test repeatability.
         random.seed(10)
@@ -100,7 +103,8 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
                 if top_doc['BUS_NAME_EL'][0] == '':
                     assert business_rows[0].ID_STR == top_doc['id']
                 else:
-                    printRed('Top Solr doc has a non-empty BUS_NAME_EL field: "{}". Ranking assert skipped'.format(top_doc['BUS_NAME_EL'][0]))
+                    printRed('Top Solr doc has a non-empty BUS_NAME_EL field: "{}". Ranking assert skipped'.format(
+                        top_doc['BUS_NAME_EL'][0]))
                     count_el_match_skipped += 1
 
                 printGreen("\tAll asserts PASSED.")
@@ -118,29 +122,32 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
     finally:
         print("\n")
         print("{} tests executed: {} precise and {} partial name matches.".format(count,
-                                                                                      count_precise_name_match,
-                                                                                      count_partial_name_match))
-        if count_success == tests_count:
-            printSuccess("All tests PASSED!")
-        else:
-            if count_success > 0:
-                printSuccess("{} tests PASSED.".format(count_success))
-            printRed("{} tests FAILED".format(count - count_success))
-        if count_el_match_skipped > 0:
-            printRed("WARNING: {} tests skipped.".format(count_el_match_skipped))
+                                                                                  count_precise_name_match,
+                                                                                  count_partial_name_match))
+        if count > 0:
+            if count_success == tests_count:
+                printSuccess("All tests PASSED!")
+            else:
+                if count_success > 0:
+                    printSuccess("{} tests PASSED.".format(count_success))
+                printRed("{} tests FAILED".format(count - count_success))
+            if count_el_match_skipped > 0:
+                printRed("WARNING: {} tests skipped.".format(count_el_match_skipped))
 
-        # Display some stats
-        print("\n")
-        print("QTime: median={} ms, average={} ms, min={} ms, max={} ms".format(
-            np.median(search_times),
-            np.average(search_times),
-            np.min(search_times),
-            np.max(search_times)))
-        print("Recall: median={} ms, average={} ms, min={} ms, max={} ms".format(
-            np.median(recalls),
-            np.average(recalls),
-            np.min(recalls),
-            np.max(recalls)))
+            # Display some stats
+            print("\n")
+            print("QTime: median={} ms, average={} ms, min={} ms, max={} ms".format(
+                np.round(np.median(search_times)),
+                np.round(np.average(search_times)),
+                np.round(np.min(search_times)),
+                np.round(np.max(search_times))))
+            print("Recall: median={}, average={}, min={}, max={}".format(
+                np.round(np.median(recalls)),
+                np.round(np.average(recalls)),
+                np.round(np.min(recalls)),
+                np.round(np.max(recalls))))
 
-        end_time = time.monotonic()
-        print("{}: execution time: {}".format(test_name, timedelta(seconds=end_time - start_time)))
+            end_time = time.monotonic()
+            print("{}: execution time: {}".format(test_name, timedelta(seconds=end_time - start_time)))
+
+    return count_success
