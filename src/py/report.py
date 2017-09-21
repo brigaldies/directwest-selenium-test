@@ -1,3 +1,3 @@
 if __name__ == "__main__":
-    # TODO: Generate the test report.
-    print("TODO: Tests report.")
+    with open("report.txt", "r") as report_file:
+        print(report_file.read())

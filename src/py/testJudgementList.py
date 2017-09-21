@@ -13,7 +13,7 @@ def testJudgementList(args, db_cnx, solr_cnx):
     :param args: Python script's command-line arguments.
     :param db_cnx: Source SQL database connection.
     :param solr_cnx: Solr connection
-    :return: Number of successful tests.
+    :return: Tuple (Number of tests, number of successful tests, number of skipped tests)
     """
 
     test_name = "testJudgementList"
@@ -169,4 +169,4 @@ def testJudgementList(args, db_cnx, solr_cnx):
         end_time = time.monotonic()
         print("{}: execution time: {}".format(test_name, timedelta(seconds=end_time - start_time)))
 
-    return success_count
+    return tests_count, success_count, 0

@@ -1,4 +1,5 @@
 import argparse
+import datetime
 
 from analyzeCategories import *
 from testExactCategoryMatches import *
@@ -53,16 +54,34 @@ if __name__ == "__main__":
             if solr_cnx is None:
                 raise Exception('Solr connection issue')
 
-            if args.test == "name":
-                testHighPrecisionBusinessNameMatches(args, cnx, solr_cnx, tests_count)
-            elif args.test == "cat":
-                testExactCategoryMatches(args, cnx, solr_cnx, tests_count)
-            elif args.test == "judgement":
-                testJudgementList(args, cnx, solr_cnx, )
-            elif args.test == "analyzecat":
-                analyzeCategories(args, cnx)
-            else:
-                raise Exception('Unknown test name'.format(args.test))
+            with open("report.txt", "a") as report_file:
+                test_fixture = ''
+                if args.test == "name":
+                    test_fixture = 'testHighPrecisionBusinessNameMatches'
+                    results = testHighPrecisionBusinessNameMatches(args, cnx, solr_cnx, tests_count)
+                elif args.test == "cat":
+                    test_fixture = 'testExactCategoryMatches'
+                    results = testExactCategoryMatches(args, cnx, solr_cnx, tests_count)
+                elif args.test == "judgement":
+                    test_fixture = 'testJudgementList'
+                    results = testJudgementList(args, cnx, solr_cnx, )
+                elif args.test == "analyzecat":
+                    test_fixture = 'analyzeCategories'
+                    results = analyzeCategories(args, cnx)
+                else:
+                    raise Exception('Unknown test name'.format(args.test))
+                report_file.write(
+                    '{} Test fixture {:70.70}: tests count={:5d}, success={:5d}, failed={:5d}, skipped={:5d}, success rate=[{}%]\n'.format(
+                        "{:%Y:%m:%d %H:%M:%S}".format(datetime.datetime.now()),
+                        '{}(location="{}", filter="{}")'.format(
+                            test_fixture,
+                            args.loc,
+                            args.filter if analyzeCategories is not None else 'None'),
+                        results[0],
+                        results[1],
+                        results[0] - results[1],
+                        results[2],
+                        round(((results[1] - - results[2]) / results[0]) * 100, 2)))
 
             # Shutting down...
             print("\nShutting down...")

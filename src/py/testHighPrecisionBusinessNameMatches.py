@@ -10,12 +10,18 @@ from solr import *
 
 
 def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
-    """Test high-precision business name searches
+    """
+    Test fixture for high-precision name matches.
+    :param args: Python script's command-line arguments.
+    :param db_cnx: Source SQL database connection.
+    :param solr_cnx: Solr connection.
+    :param tests_count: Maximum number of randomly (Seeded)-selected categories to test.
+    :return: Number of successful tests.
     """
     test_name = "testHighPrecisionBusinessNameMatches"
     start_time = time.monotonic()
     count = 0
-    count_success = 0
+    success_count = 0
     count_precise_name_match = 0
     count_partial_name_match = 0
     count_el_match_skipped = 0
@@ -108,7 +114,7 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
                     count_el_match_skipped += 1
 
                 printGreen("\tAll asserts PASSED.")
-                count_success += 1
+                success_count += 1
             except Exception as e:
                 print(e)
                 printRed("Assert FAILED.")
@@ -125,12 +131,12 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
                                                                                   count_precise_name_match,
                                                                                   count_partial_name_match))
         if count > 0:
-            if count_success == tests_count:
+            if success_count == tests_count:
                 printSuccess("All tests PASSED!")
             else:
-                if count_success > 0:
-                    printSuccess("{} tests PASSED.".format(count_success))
-                printRed("{} tests FAILED".format(count - count_success))
+                if success_count > 0:
+                    printSuccess("{} tests PASSED.".format(success_count))
+                printRed("{} tests FAILED".format(count - success_count))
             if count_el_match_skipped > 0:
                 printRed("WARNING: {} tests skipped.".format(count_el_match_skipped))
 
@@ -150,4 +156,4 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
             end_time = time.monotonic()
             print("{}: execution time: {}".format(test_name, timedelta(seconds=end_time - start_time)))
 
-    return count_success
+    return tests_count, success_count, count_el_match_skipped

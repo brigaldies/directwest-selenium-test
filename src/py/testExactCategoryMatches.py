@@ -16,7 +16,7 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
     :param db_cnx: Source SQL database connection.
     :param solr_cnx: Solr connection.
     :param tests_count: Maximum number of randomly (Seeded)-selected categories to test.
-    :return: Number of successful tests.
+    :return: Tuple (Number of tests, number of successful tests, number of skipped tests)
     """
     test_name = "testExactCategoryMatches"
     start_time = time.monotonic()
@@ -167,4 +167,4 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
         end_time = time.monotonic()
         print("Execution time: {}".format(timedelta(seconds=end_time - start_time)))
 
-    return count_success
+    return count, count_success, 0
