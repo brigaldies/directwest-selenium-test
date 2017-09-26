@@ -5,6 +5,7 @@ from analyzeCategories import *
 from testExactCategoryMatches import *
 from testHighPrecisionBusinessNameMatches import *
 from testJudgementList import *
+from testRecommendations import *
 
 if __name__ == "__main__":
     """Usage example: 
@@ -68,6 +69,8 @@ if __name__ == "__main__":
                 elif args.test == "analyzecat":
                     test_fixture = 'analyzeCategories'
                     results = analyzeCategories(args, cnx)
+                elif args.test == 'recommendations':
+                    results = testRecommendations(args, cnx, solr_cnx)
                 else:
                     raise Exception('Unknown test name'.format(args.test))
                 report_file.write(

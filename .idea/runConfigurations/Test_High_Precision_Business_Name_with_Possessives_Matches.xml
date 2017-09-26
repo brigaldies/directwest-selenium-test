@@ -12,7 +12,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <module name="selenium-test" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/py/main.py" />
-    <option name="PARAMETERS" value="--server apiosc.411.directwest.com --database API --user apiuser --password api12! --solr &quot;http://localhost:8983/solr/DWBusiness&quot; --handler DWOmniSearch --test name --count 10 --loc Regina --filter &quot;%'s%&quot;" />
+    <option name="PARAMETERS" value="--server apiosc.411.directwest.com --database API --user apiuser --password api12! --solr &quot;http://localhost:8983/solr/DWBusiness&quot; --handler DWOmniSearch --test name --count 100 --loc Regina --filter &quot;%'s%&quot;" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <method />

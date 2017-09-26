@@ -21,6 +21,7 @@
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test High Precision Business Name with Possessives Matches" run_configuration_type="PythonConfigurationType" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Exact Category Matches" run_configuration_type="PythonConfigurationType" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Judgement List" run_configuration_type="PythonConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Recommendations" run_configuration_type="PythonConfigurationType" />
     </method>
   </configuration>
 </component>
