@@ -22,6 +22,9 @@
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Exact Category Matches" run_configuration_type="PythonConfigurationType" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Judgement List" run_configuration_type="PythonConfigurationType" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Recommendations" run_configuration_type="PythonConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Residential" run_configuration_type="PythonConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test Business Geo Distances" run_configuration_type="PythonConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test SKLocations" run_configuration_type="PythonConfigurationType" />
     </method>
   </configuration>
 </component>

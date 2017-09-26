@@ -1,8 +1,3 @@
-import time
-from datetime import timedelta
-
-import numpy as np
-
 from solr import *
 from utils import *
 
@@ -73,7 +68,8 @@ def testJudgementList(args, db_cnx, solr_cnx):
         'Canoes': {'location': 'Yorkton', 'expect': ['116058']},
 
         # Matching on both business name and business extended line
-        'Cuelenaere Kendall Katzman Watson': {'location': 'Saskatoon', 'expect': ['122706', '122696', '122699', '122697']},
+        'Cuelenaere Kendall Katzman Watson': {'location': 'Saskatoon',
+                                              'expect': ['122706', '122696', '122699', '122697']},
 
     }
 
@@ -143,30 +139,6 @@ def testJudgementList(args, db_cnx, solr_cnx):
             print(e)
             printRed("Assert FAILED.")
 
-    print("\n")
-    print("{} tests executed.".format(tests_count))
-    if tests_count > 0:
-        if success_count == tests_count:
-            printSuccess("All tests PASSED!")
-        else:
-            if success_count > 0:
-                printSuccess("{} tests PASSED.".format(success_count))
-            printRed("{} tests FAILED".format(tests_count - success_count))
-
-        # Display some stats
-        print("\n")
-        print("QTime: median={} ms, average={} ms, min={} ms, max={} ms".format(
-            np.round(np.median(search_times)),
-            np.round(np.average(search_times)),
-            np.round(np.min(search_times)),
-            np.round(np.max(search_times))))
-        print("Recall: median={}, average={}, min={}, max={}".format(
-            np.round(np.median(recalls)),
-            np.round(np.average(recalls)),
-            np.round(np.min(recalls)),
-            np.round(np.max(recalls))))
-
-        end_time = time.monotonic()
-        print("{}: execution time: {}".format(test_name, timedelta(seconds=end_time - start_time)))
+    testEpilog(test_name, start_time, tests_count, success_count, search_times, recalls)
 
     return tests_count, success_count, 0

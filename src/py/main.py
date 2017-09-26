@@ -6,6 +6,9 @@ from testExactCategoryMatches import *
 from testHighPrecisionBusinessNameMatches import *
 from testJudgementList import *
 from testRecommendations import *
+from testResidential import *
+from testBusinessGeoDistances import *
+from testSKLocations import *
 
 if __name__ == "__main__":
     """Usage example: 
@@ -70,7 +73,17 @@ if __name__ == "__main__":
                     test_fixture = 'analyzeCategories'
                     results = analyzeCategories(args, cnx)
                 elif args.test == 'recommendations':
+                    test_fixture = 'testRecommendations'
                     results = testRecommendations(args, cnx, solr_cnx)
+                elif args.test == 'residential':
+                    test_fixture = 'testResidential'
+                    results = testResidential(args, cnx, solr_cnx)
+                elif args.test == 'busgeodist':
+                    test_fixture = 'testBusinessGeoDistances'
+                    results = testBusinessGeoDistances(args, cnx, solr_cnx)
+                elif args.test == 'sklocations':
+                    test_fixture = 'testSKLocations'
+                    results = testSKLocations(args, cnx, solr_cnx)
                 else:
                     raise Exception('Unknown test name'.format(args.test))
                 report_file.write(
