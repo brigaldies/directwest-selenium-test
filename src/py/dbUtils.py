@@ -48,7 +48,7 @@ def dwDbGetBusinesses(cnx, city, filter):
         sql_where += ' and BUS_BUSINESS_NAME like ?'
     sqlStatement = """
         select * from (
-            select distinct LTRIM(STR(id, 10)) as ID_STR, LTRIM(STR(BUS_LISTING_ID, 10)) as BUS_LISTING_ID_STR, BUS_BUSINESS_NAME, BUS_EL_TEXT, BUS_CITY, BUS_PRIORITY_RANK, BUS_IS_TOLL_FREE
+            select distinct LTRIM(STR(id, 10)) as ID_STR, LTRIM(STR(BUS_LISTING_ID, 10)) as BUS_LISTING_ID_STR, BUS_BUSINESS_NAME, BUS_EL_TEXT, BUS_HEADING, BUS_CITY, BUS_PRIORITY_RANK, BUS_IS_TOLL_FREE
             from SolrDWBusiness 
             where {}) t
         order by BUS_IS_TOLL_FREE asc, BUS_PRIORITY_RANK desc, BUS_CITY asc, BUS_BUSINESS_NAME asc, BUS_EL_TEXT asc, BUS_LISTING_ID_STR asc, ID_STR asc

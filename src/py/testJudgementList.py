@@ -36,7 +36,7 @@ def testJudgementList(args, db_cnx, solr_cnx):
 
         "Amy's": {'location': '"Prince Albert"', 'expect': ['30186']},
 
-        'Pizza Pizza': {'location': 'Regina', 'expect': ['9695', '74700', '120121', '120122', '89786']},
+        'Pizza Pizza': {'location': 'Regina', 'expect': ['9695', '74700', '120121', '120122']},
 
         '7 Eleven': {'location': 'Regina', 'expect': results_seven_eleven},
         '7-11': {'location': 'Regina', 'expect': results_seven_eleven},
@@ -50,7 +50,7 @@ def testJudgementList(args, db_cnx, solr_cnx):
 
         # The category 'Auto Electric Service' presents the situation of a category that matches a business
         # name that is in a different category.
-        'Auto Electric Service': {'location': 'Regina', 'expect': ['10068', '2517', '2520', '4555', '1236']},
+        'Auto Electric Service': {'location': 'Regina', 'expect': ['2517', '2520', '10068', '4555', '1236']},
 
         # The category 'Ambulance Service' presents the situation of a category that matches a business
         # name that is in that category.

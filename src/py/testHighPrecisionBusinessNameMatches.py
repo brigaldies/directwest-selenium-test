@@ -74,9 +74,10 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
             docs = results['grouped']['BUS_LISTING_ID']['doclist']['docs']
             top_doc = docs[0]
             print(
-                '\tPrecision: Top result=id "{}", name="{}", business rank={}, $isPreciseNameMatch={}, $isPartialNameMatch={}'.format(
+                '\tPrecision: Top result=id "{}", name="{}", category="{}", business rank={}, $isPreciseNameMatch={}, $isPartialNameMatch={}'.format(
                     top_doc['id'],
                     top_doc['BUS_BUSINESS_NAME'],
+                    top_doc['BUS_HEADING'],
                     top_doc['BUS_PRIORITY_RANK'],
                     top_doc['$isPreciseNameMatch'],
                     top_doc['$isPartialNameMatch']))
@@ -101,17 +102,24 @@ def testHighPrecisionBusinessNameMatches(args, db_cnx, solr_cnx, tests_count):
                 business_rows = dwDbGetBusinesses(db_cnx, args.loc, top_doc['BUS_BUSINESS_NAME'])
                 print("\tAsserting business' source database records...")
                 assert len(business_rows) > 0
-                print("\tTop database source record: id={}, business rank={}".format(business_rows[0].ID_STR,
-                                                                                     business_rows[
-                                                                                         0].BUS_PRIORITY_RANK))
+                print('\tTop database source record: id={}, name="{}", category="{}", business rank={}'.format(
+                    business_rows[0].ID_STR,
+                    business_rows[0].BUS_BUSINESS_NAME,
+                    business_rows[0].BUS_HEADING,
+                    business_rows[0].BUS_PRIORITY_RANK
+                ))
                 print("\tAsserting ranking...")
                 # Solr may return a different top result based on matching on BUS_EL_TEXT. The test code here does not account for that, hence the test is skipped in that situation.
-                if top_doc['BUS_NAME_EL'][0] == '':
-                    assert business_rows[0].ID_STR == top_doc['id']
-                else:
-                    printRed('Top Solr doc has a non-empty BUS_NAME_EL field: "{}". Ranking assert skipped'.format(
-                        top_doc['BUS_NAME_EL'][0]))
+                if business_rows[0].BUS_BUSINESS_NAME == business_rows[0].BUS_HEADING:
+                    printRed('Top database doc name matches its category: Ranking assert skipped')
                     count_el_match_skipped += 1
+                else:
+                    if top_doc['BUS_NAME_EL'][0] == '':
+                        assert business_rows[0].ID_STR == top_doc['id']
+                    else:
+                        printRed('Top Solr doc has a non-empty BUS_NAME_EL field: "{}". Ranking assert skipped'.format(
+                            top_doc['BUS_NAME_EL'][0]))
+                        count_el_match_skipped += 1
 
                 printGreen("\tAll asserts PASSED.")
                 success_count += 1

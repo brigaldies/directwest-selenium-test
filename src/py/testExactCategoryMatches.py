@@ -65,7 +65,7 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
 
             # Retrieve the count of businesses in the desired location and category
             business_rows = dwDbGetBusinessesCountByCategory(db_cnx, args.loc, random_row.BUS_HEADING)
-            print("\tAsserting business' source database records...")
+            print("\tAsserting the source database records...")
             assert len(business_rows) == 1
             category_business_count = business_rows[0].BUS_CAT_COUNT
             print('\tSource database: {} businesses in category "{}" in "{}"'.format(
@@ -92,7 +92,7 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
                 assert category_business_count == docs_count
 
                 # Each Solr document should be of the expected category
-                print("\tAsserting the docs' category...")
+                print("\tAsserting the matched documents categories...")
                 for doc in docs:
                     print('\tDoc DW id="{}"\tname="{}"\tcategory="{}", $isExactCategoryMatch={}'.format(
                         doc['id'],
@@ -108,7 +108,7 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
                 assert len(sql_ranked_businesses) > 0
                 print("\tAsserting the SQL-ranked businesses count...")
                 assert len(sql_ranked_businesses) == len(docs)
-                print("\tAsserting the docs' ranking...")
+                print("\tAsserting the documents ranking...")
                 for idx, sql_ranked_business in enumerate(sql_ranked_businesses):
                     assert sql_ranked_business.ID_STR == docs[idx]['id']
 
@@ -159,7 +159,7 @@ def testExactCategoryMatches(args, db_cnx, solr_cnx, tests_count):
             np.round(np.min(recalls)),
             np.round(np.max(recalls))))
 
-        print("Categories' tokens distribution:")
+        print("Categories tokens distribution:")
         sorted_keys = sorted(category_tokens_stats.keys())
         for key in sorted_keys:
             print("{}: {}".format(key, category_tokens_stats[key]))
